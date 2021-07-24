@@ -16,9 +16,21 @@ interface Dimension {
 }
 
 export interface SquareData {
-  bomb: boolean;
-  touching: number;
-  showing: boolean;
+  x: number;
+  y: number;
+  isBomb: boolean;
+  bombsTouching: number;
+  isShowing: boolean;
+  isFlagged: boolean;
+}
+
+const SQUARE = {
+  x: 0,
+  y: 0,
+  isBomb: false,
+  bombsTouching: 0,
+  isShowing: false,
+  isFlagged: false
 }
 
 @Component({
@@ -28,10 +40,10 @@ export interface SquareData {
 })
 export default class Board extends Vue {
   public board: SquareData[][] = [
-    [{bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}],
-    [{bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}],
-    [{bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}],
-    [{bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}, {bomb: false, touching: 0, showing: false}]
+    [SQUARE, SQUARE, SQUARE, SQUARE],
+    [SQUARE, SQUARE, SQUARE, SQUARE],
+    [SQUARE, SQUARE, SQUARE, SQUARE],
+    [SQUARE, SQUARE, SQUARE, SQUARE]
   ];
 
   mounted() {
@@ -51,8 +63,8 @@ export default class Board extends Vue {
       const yIndex = this.getRandomInt(dimension.y);
 
       const square = this.board[xIndex][yIndex];
-      if (!square.bomb) {
-        square.bomb = true;
+      if (!square.isBomb) {
+        square.isBomb = true;
         bombsPlaced += 1;
       }
     }

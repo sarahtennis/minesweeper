@@ -11,8 +11,7 @@ export default class Square extends Vue {
   @Prop() private square!: SquareData;
 
   public getIsBomb() {
-    console.log(this.square);
-    return this.square.bomb;
+    return this.square.isBomb;
   }
 }
 </script>
