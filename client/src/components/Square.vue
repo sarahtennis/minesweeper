@@ -1,18 +1,17 @@
 <template>
-  <div class="square" :class="{ 'bomb': getIsBomb() }"></div>
+  <div class="square" :class="{ bomb: getIsBomb() }"></div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { SquareData } from './Board.vue';
+import { SquareData } from "./Board.vue";
 
 @Component
 export default class Square extends Vue {
   @Prop() private square!: SquareData;
 
-  public getIsBomb() {
+  public getIsBomb(): boolean {
     return this.square.isBomb;
-  }
 }
 </script>
 
