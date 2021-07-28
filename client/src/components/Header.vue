@@ -1,7 +1,7 @@
 <template>
   <div id="header">
     <button @click="$emit('newBoard')">
-      <img src="../assets/Smiley.svg" />
+      <img src="../assets/Smiley2.svg" />
     </button>
   </div>
 </template>
