@@ -24,20 +24,21 @@ export default class Square extends Vue {
   private isHovered = false;
 
   mounted(): void {
-    this.$el.addEventListener("mousedown", (event: MouseEvent) => {
+    this.$el.addEventListener("mousedown", (event: Event) => {
       this.isHovered = true;
       event.preventDefault();
     });
 
-    this.$el.addEventListener("mouseup", (event: MouseEvent) => {
+    this.$el.addEventListener("mouseup", () => {
       this.isHovered = false;
+      if (!this.square.isShowing) this.square.isShowing = true;
     });
 
     this.$el.addEventListener("click", () => {
       this.square.isShowing = true;
     });
 
-    this.$el.addEventListener("mouseenter", (event: MouseEvent) => {
+    this.$el.addEventListener("mouseenter", () => {
       if (this.isMouseDown) {
         this.isHovered = true;
       } else {
@@ -45,7 +46,7 @@ export default class Square extends Vue {
       }
     });
 
-    this.$el.addEventListener("mouseleave", (event: MouseEvent) => {
+    this.$el.addEventListener("mouseleave", () => {
       this.isHovered = false;
     });
   }
