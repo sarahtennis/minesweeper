@@ -5,8 +5,14 @@
       bomb: getIsBomb(),
       hovered: getIsHovered(),
       showing: getIsShowing(),
+      flagged: getIsFlagged(),
     }"
+    @contextmenu="onRightClick($event)"
   >
+    <img
+      v-if="square.isFlagged && !square.isShowing"
+      src="../assets/Flag.svg"
+    />
     <span v-if="square.isShowing">
       {{ square.bombsTouching ? square.bombsTouching : "" }}
     </span>
@@ -24,18 +30,22 @@ export default class Square extends Vue {
   private isHovered = false;
 
   mounted(): void {
-    this.$el.addEventListener("mousedown", (event: Event) => {
+    this.$el.addEventListener("mousedown", (event: MouseEvent) => {
+      if (event.button === 2 || this.getIsFlagged()) {
+        event.preventDefault();
+        return;
+      }
       this.isHovered = true;
       event.preventDefault();
     });
 
-    this.$el.addEventListener("mouseup", () => {
+    this.$el.addEventListener("mouseup", (e: MouseEvent) => {
+      if (e.button === 2 || this.getIsFlagged()) {
+        e.preventDefault();
+        return;
+      }
       this.isHovered = false;
       if (!this.square.isShowing) this.square.isShowing = true;
-    });
-
-    this.$el.addEventListener("click", () => {
-      this.square.isShowing = true;
     });
 
     this.$el.addEventListener("mouseenter", () => {
@@ -51,16 +61,28 @@ export default class Square extends Vue {
     });
   }
 
+  public onRightClick(e: Event) {
+    // TODO: add ? icon functionality
+    if (!this.square.isShowing) {
+      this.square.isFlagged = !this.square.isFlagged;
+    }
+    e.preventDefault();
+  }
+
   public getIsHovered(): boolean {
     return this.isHovered;
   }
 
   public getIsBomb(): boolean {
-    return this.square.isBomb;
+    return this.square.isShowing && this.square.isBomb;
   }
 
   public getIsShowing(): boolean {
     return this.square.isShowing;
+  }
+
+  public getIsFlagged(): boolean {
+    return this.square.isFlagged;
   }
 }
 </script>
