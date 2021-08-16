@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import Board, { SquareRow } from "./Board.vue";
 import Header from "./Header.vue";
 
@@ -30,25 +30,30 @@ interface Location {
 })
 export default class Game extends Vue {
   public board: SquareRow[];
+  public dimensions: Dimension = {
+    x: 10,
+    y: 10,
+  };
+  public bombCount = 10;
 
   constructor() {
     super();
-    this.board = this.initBoard();
+    this.board = this.initBoard(this.dimensions.x, this.dimensions.y);
   }
 
-  public mounted() {
+  public mounted(): void {
     this.generateBoard();
   }
 
-  public onNewBoard() {
-    this.board = this.initBoard();
+  public onNewBoard(): void {
+    this.board = this.initBoard(this.dimensions.x, this.dimensions.y);
     this.generateBoard();
   }
 
-  private initBoard(): SquareRow[] {
+  private initBoard(x: number, y: number): SquareRow[] {
     let outputArray = [];
-    const xIndex = 4;
-    const yIndex = 4;
+    const xIndex = x;
+    const yIndex = y;
     for (let y = 0; y < yIndex; y++) {
       const addArray = new Array(xIndex).fill("").map(() => {
         return {
@@ -66,17 +71,13 @@ export default class Game extends Vue {
   }
 
   private placeBombs(): Location[] {
-    const bombCount = 3;
+    const bombCount = this.bombCount;
     let bombsPlaced = 0;
     const bombLocations = [];
-    const dimension: Dimension = {
-      x: 4,
-      y: 4,
-    };
 
     while (bombsPlaced < bombCount) {
-      const xIndex = this.getRandomInt(dimension.x);
-      const yIndex = this.getRandomInt(dimension.y);
+      const xIndex = this.getRandomInt(this.dimensions.x);
+      const yIndex = this.getRandomInt(this.dimensions.y);
 
       const square = this.board[xIndex][yIndex];
       if (!square.isBomb) {

@@ -8,6 +8,10 @@
       flagged: getIsFlagged(),
     }"
     @contextmenu="onRightClick($event)"
+    @mousedown="onMouseDown($event)"
+    @mouseup="onMouseUp($event)"
+    @mouseleave="onMouseLeave($event)"
+    @mouseenter="onMouseEnter($event)"
   >
     <img
       v-if="square.isFlagged && !square.isShowing"
@@ -29,39 +33,36 @@ export default class Square extends Vue {
   @Prop() private isMouseDown!: boolean;
   private isHovered = false;
 
-  mounted(): void {
-    this.$el.addEventListener("mousedown", (event: MouseEvent) => {
-      if (event.button === 2 || this.getIsFlagged()) {
-        event.preventDefault();
-        return;
-      }
-      this.isHovered = true;
-      event.preventDefault();
-    });
-
-    this.$el.addEventListener("mouseup", (e: MouseEvent) => {
-      if (e.button === 2 || this.getIsFlagged()) {
-        e.preventDefault();
-        return;
-      }
-      this.isHovered = false;
-      if (!this.square.isShowing) this.square.isShowing = true;
-    });
-
-    this.$el.addEventListener("mouseenter", () => {
-      if (this.isMouseDown) {
-        this.isHovered = true;
-      } else {
-        this.isHovered = false;
-      }
-    });
-
-    this.$el.addEventListener("mouseleave", () => {
-      this.isHovered = false;
-    });
+  public onMouseUp(e: MouseEvent): void {
+    if (e.button === 2 || this.getIsFlagged()) {
+      e.preventDefault();
+      return;
+    }
+    this.isHovered = false;
+    if (!this.square.isShowing) this.square.isShowing = true;
   }
 
-  public onRightClick(e: Event) {
+  public onMouseLeave(): void {
+    this.isHovered = false;
+  }
+
+  public onMouseEnter(): void {
+    if (this.isMouseDown) {
+      this.isHovered = true;
+    } else {
+      this.isHovered = false;
+    }
+  }
+
+  public onMouseDown(e: MouseEvent): void {
+    if (e.button === 2 || this.getIsFlagged()) {
+      e.preventDefault();
+      return;
+    }
+    this.isHovered = true;
+  }
+
+  public onRightClick(e: MouseEvent): void {
     // TODO: add ? icon functionality
     if (!this.square.isShowing) {
       this.square.isFlagged = !this.square.isFlagged;
@@ -102,6 +103,7 @@ export default class Square extends Vue {
   border-left-color: #ccc;
   border-right-color: #666;
   border-bottom-color: #666;
+  user-select: none;
 }
 
 .square.hovered,
