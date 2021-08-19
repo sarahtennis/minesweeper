@@ -25,6 +25,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
+import EventBus from "../event-bus";
 import { SquareData } from "./Board.vue";
 
 @Component
@@ -39,7 +40,7 @@ export default class Square extends Vue {
       return;
     }
     this.isHovered = false;
-    if (!this.square.isShowing) this.square.isShowing = true;
+    EventBus.$emit("squareClicked", this.square);
   }
 
   public onMouseLeave(): void {

@@ -7,8 +7,10 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import Board, { SquareRow } from "./Board.vue";
+import Board, { SquareRow, SquareData } from "./Board.vue";
 import Header from "./Header.vue";
+import EventBus from "../event-bus";
+import Square from "./Square.vue";
 
 // X determines number of rows
 // Y determines number of columns
@@ -43,6 +45,80 @@ export default class Game extends Vue {
 
   public mounted(): void {
     this.generateBoard();
+    EventBus.$on("squareClicked", (square: SquareData) => {
+      this.onSquareClicked(square);
+    });
+  }
+
+  private onSquareClicked(square: SquareData) {
+    const { x, y } = square;
+    if (!square.isFlagged && !square.isShowing) {
+      this.board[x][y].isShowing = true;
+      if (square.isBomb) {
+        // TODO: loss logic/visuals
+      } else if (square.bombsTouching === 0) {
+        this.clickNeighbors({ x, y });
+      }
+    }
+  }
+
+  private clickBelow(
+    location: Location,
+    isLeftColumn: boolean,
+    isRightColumn: boolean
+  ): void {
+    if (!isLeftColumn) {
+      this.clickSquare(this.board[location.x + 1][location.y - 1]);
+    }
+    this.clickSquare(this.board[location.x + 1][location.y]);
+    if (!isRightColumn) {
+      this.clickSquare(this.board[location.x + 1][location.y + 1]);
+    }
+  }
+
+  private clickSquare(square: SquareData) {
+    this.onSquareClicked(square);
+  }
+
+  private clickSides(
+    location: Location,
+    isLeftColumn: boolean,
+    isRightColumn: boolean
+  ): void {
+    const left = this.board[location.x][location.y - 1];
+    const right = this.board[location.x][location.y + 1];
+    if (!isLeftColumn) {
+      this.clickSquare(left);
+    }
+    if (!isRightColumn) {
+      this.clickSquare(right);
+    }
+  }
+
+  private clickAbove(
+    location: Location,
+    isLeftColumn: boolean,
+    isRightColumn: boolean
+  ): void {
+    if (!isLeftColumn) {
+      this.clickSquare(this.board[location.x - 1][location.y - 1]);
+    }
+    this.clickSquare(this.board[location.x - 1][location.y]);
+    if (!isRightColumn) {
+      this.clickSquare(this.board[location.x - 1][location.y + 1]);
+    }
+  }
+
+  private clickNeighbors(location: Location) {
+    const { x, y } = location;
+    const isTopRow = x === 0;
+    const isBottomRow = this.board.length === x + 1;
+    const isLeftColumn = y === 0;
+    const isRightColumn = this.board[0].length === y + 1;
+
+    if (!isTopRow) this.clickAbove(location, isLeftColumn, isRightColumn);
+    this.clickSides(location, isLeftColumn, isRightColumn);
+    if (!isBottomRow) this.clickBelow(location, isLeftColumn, isRightColumn);
   }
 
   public onNewBoard(): void {
@@ -55,16 +131,18 @@ export default class Game extends Vue {
     const xIndex = x;
     const yIndex = y;
     for (let y = 0; y < yIndex; y++) {
-      const addArray = new Array(xIndex).fill("").map(() => {
-        return {
-          x: 0,
-          y: 0,
+      const addArray = [];
+      for (let x = 0; x < xIndex; x++) {
+        const squareData = {
+          x: y,
+          y: x,
           isBomb: false,
           bombsTouching: 0,
           isShowing: false,
           isFlagged: false,
         };
-      });
+        addArray.push(squareData);
+      }
       outputArray.push(addArray);
     }
     return outputArray;
