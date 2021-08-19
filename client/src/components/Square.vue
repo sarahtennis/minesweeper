@@ -14,12 +14,20 @@
     @mouseenter="onMouseEnter($event)"
   >
     <img
+      class="square-showing"
       v-if="square.isFlagged && !square.isShowing"
-      src="../assets/Flag.svg"
+      src="../assets/FlagPixel.svg"
     />
-    <span v-if="square.isShowing">
-      {{ square.bombsTouching ? square.bombsTouching : "" }}
-    </span>
+    <div class="square-showing" v-if="square.isShowing">
+      <img
+        class="bomb-count-number"
+        v-if="square.bombsTouching === 1"
+        src="../assets/One.svg"
+      />
+      <span v-if="square.bombsTouching !== 1">{{
+        square.bombsTouching ? square.bombsTouching : ""
+      }}</span>
+    </div>
   </div>
 </template>
 
@@ -114,5 +122,17 @@ export default class Square extends Vue {
 
 .bomb.showing {
   border: 1px solid red;
+}
+
+.square-showing {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bomb-count-number {
+  height: 50%;
+  width: auto;
 }
 </style>
