@@ -13,20 +13,13 @@
     @mouseleave="onMouseLeave($event)"
     @mouseenter="onMouseEnter($event)"
   >
-    <img
-      class="square-showing"
-      v-if="square.isFlagged && !square.isShowing"
-      src="../assets/FlagPixel.svg"
-    />
-    <div class="square-showing" v-if="square.isShowing">
-      <img
-        class="bomb-count-number"
-        v-if="square.bombsTouching === 1"
-        src="../assets/One.svg"
-      />
-      <span v-if="square.bombsTouching !== 1">{{
-        square.bombsTouching ? square.bombsTouching : ""
-      }}</span>
+    <div class="square-showing">
+      <!-- <img class="square-icon" :src="getIconSrc()" /> -->
+      <component
+        class="square-icon"
+        v-if="square.isShowing"
+        v-bind:is="getIconComponent()"
+      ></component>
     </div>
   </div>
 </template>
@@ -35,12 +28,51 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import EventBus from "../event-bus";
 import { SquareData } from "./Board.vue";
+import Bomb from "../assets/Bomb.vue";
+import One from "../assets/One.vue";
+import Two from "../assets/Two.vue";
+import Three from "../assets/Three.vue";
+import Four from "../assets/Four.vue";
+import Five from "../assets/Five.vue";
+import Six from "../assets/Six.vue";
+import Seven from "../assets/Seven.vue";
+import Eight from "../assets/Eight.vue";
 
-@Component
+const BombCountToSvgName: { [index: number]: string } = {
+  1: "One",
+  2: "Two",
+  3: "Three",
+  4: "Four",
+  5: "Five",
+  6: "Six",
+  7: "Seven",
+  8: "Eight",
+};
+
+@Component({
+  components: {
+    Bomb,
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+  },
+})
 export default class Square extends Vue {
   @Prop() private square!: SquareData;
   @Prop() private isMouseDown!: boolean;
   private isHovered = false;
+
+  public getIconComponent(): string {
+    if (this.square.isBomb) {
+      return "Bomb";
+    }
+    return BombCountToSvgName[this.square.bombsTouching];
+  }
 
   public onMouseUp(e: MouseEvent): void {
     if (e.button === 2 || this.getIsFlagged()) {
@@ -105,23 +137,19 @@ export default class Square extends Vue {
   align-items: center;
   height: 50px;
   width: 50px;
-  background: #888;
+  background: #c0c0c0;
   border-width: 8px;
   border-style: solid;
-  border-top-color: #ccc;
-  border-left-color: #ccc;
-  border-right-color: #666;
-  border-bottom-color: #666;
+  border-top-color: #fff;
+  border-left-color: #fff;
+  border-right-color: #808080;
+  border-bottom-color: #808080;
   user-select: none;
 }
 
 .square.hovered,
 .square.showing {
-  border: 2px solid #666;
-}
-
-.bomb.showing {
-  border: 1px solid red;
+  border: 2px solid #808080;
 }
 
 .square-showing {
@@ -131,7 +159,8 @@ export default class Square extends Vue {
   align-items: center;
 }
 
-.bomb-count-number {
+.bomb-count-number,
+.square-icon {
   height: 50%;
   width: auto;
 }
