@@ -10,7 +10,6 @@ import { Component, Vue } from "vue-property-decorator";
 import Board, { SquareRow, SquareData } from "./Board.vue";
 import Header from "./Header.vue";
 import EventBus from "../event-bus";
-import Square from "./Square.vue";
 
 // X determines number of rows
 // Y determines number of columns
@@ -36,7 +35,7 @@ export default class Game extends Vue {
     x: 10,
     y: 10,
   };
-  public bombCount = 10;
+  public bombCount = 20;
 
   constructor() {
     super();
