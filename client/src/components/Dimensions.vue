@@ -21,44 +21,13 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 
-interface NewDimensionsFunc {
-  (): void;
-}
-
-interface RowChangeFunc {
-  (rows: string): void;
-}
-
-interface ColumnChangeFunc {
-  (columns: string): void;
-}
-
-interface NewBoardFunc {
-  (): void;
-}
-
 @Component({
-  props: [
-    "generateNewBoard",
-    "newDimensions",
-    "rows",
-    "columns",
-    "columnChange",
-    "rowChange",
-    "updateRows",
-    "updateColumns",
-  ],
+  props: ["rows", "columns"],
   components: {},
 })
 export default class Dimensions extends Vue {
-  @Prop() public newDimensions!: NewDimensionsFunc;
-  @Prop() public generateNewBoard!: NewBoardFunc;
   @Prop() public rows!: number;
   @Prop() public columns!: number;
-  @Prop() public rowChange!: RowChangeFunc;
-  @Prop() public columnChange!: ColumnChangeFunc;
-  @Prop() public updateRows!: RowChangeFunc;
-  @Prop() public updateColumns!: ColumnChangeFunc;
 
   public newRows: string;
   public newColumns: string;

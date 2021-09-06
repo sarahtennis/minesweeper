@@ -25,6 +25,7 @@ export interface SquareData {
   bombsTouching: number;
   isShowing: boolean;
   isFlagged: boolean;
+  isQuestioned: boolean;
 }
 
 export interface SquareRow extends Array<SquareData> {

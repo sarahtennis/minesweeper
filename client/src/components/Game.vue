@@ -84,7 +84,7 @@ export default class Game extends Vue {
 
   private onSquareClicked(square: SquareData) {
     const { row, column } = square;
-    if (!square.isFlagged && !square.isShowing) {
+    if (!square.isFlagged && !square.isQuestioned && !square.isShowing) {
       this.board[row][column].isShowing = true;
       if (square.isBomb) {
         // TODO: loss logic/visuals
@@ -170,6 +170,7 @@ export default class Game extends Vue {
           bombsTouching: 0,
           isShowing: false,
           isFlagged: false,
+          isQuestioned: false,
         };
         addArray.push(squareData);
       }
