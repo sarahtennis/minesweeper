@@ -2,10 +2,8 @@
   <div
     class="square"
     :class="{
-      bomb: getIsBomb(),
       hovered: getIsHovered(),
       showing: getIsShowing(),
-      flagged: getIsFlagged(),
     }"
     @contextmenu="onRightClick($event)"
     @mousedown="onMouseDown($event)"
@@ -13,14 +11,18 @@
     @mouseleave="onMouseLeave($event)"
     @mouseenter="onMouseEnter($event)"
   >
-    <div class="square-showing">
-      <!-- <img class="square-icon" :src="getIconSrc()" /> -->
-      <component
-        class="square-icon"
-        v-if="square.isShowing"
-        v-bind:is="getIconComponent()"
-      ></component>
-    </div>
+    <!-- Numbers and bomb -->
+    <component
+      class="square-icon"
+      v-if="square.isShowing"
+      v-bind:is="getIconComponent()"
+    ></component>
+    <!-- Flag -->
+    <component
+      class="square-icon"
+      v-if="(square.isFlagged || square.isQuestioned) && !square.isShowing"
+      v-bind:is="getIconComponent()"
+    ></component>
   </div>
 </template>
 
@@ -37,6 +39,8 @@ import Five from "../assets/Five.vue";
 import Six from "../assets/Six.vue";
 import Seven from "../assets/Seven.vue";
 import Eight from "../assets/Eight.vue";
+import Flag from "../assets/Flag.vue";
+import QuestionMark from "../assets/QuestionMark.vue";
 
 const BombCountToSvgName: { [index: number]: string } = {
   1: "One",
@@ -60,6 +64,8 @@ const BombCountToSvgName: { [index: number]: string } = {
     Six,
     Seven,
     Eight,
+    Flag,
+    QuestionMark,
   },
 })
 export default class Square extends Vue {
@@ -68,6 +74,12 @@ export default class Square extends Vue {
   private isHovered = false;
 
   public getIconComponent(): string {
+    if (this.square.isFlagged) {
+      return "Flag";
+    }
+    if (this.square.isQuestioned) {
+      return "QuestionMark";
+    }
     if (this.square.isBomb) {
       return "Bomb";
     }
@@ -75,7 +87,7 @@ export default class Square extends Vue {
   }
 
   public onMouseUp(e: MouseEvent): void {
-    if (e.button === 2 || this.getIsFlagged()) {
+    if (e.button === 2 || this.getIsFlagged() || this.getIsQuestioned()) {
       e.preventDefault();
       return;
     }
@@ -96,7 +108,7 @@ export default class Square extends Vue {
   }
 
   public onMouseDown(e: MouseEvent): void {
-    if (e.button === 2 || this.getIsFlagged()) {
+    if (e.button === 2 || this.getIsFlagged() || this.getIsQuestioned()) {
       e.preventDefault();
       return;
     }
@@ -106,7 +118,19 @@ export default class Square extends Vue {
   public onRightClick(e: MouseEvent): void {
     // TODO: add ? icon functionality
     if (!this.square.isShowing) {
-      this.square.isFlagged = !this.square.isFlagged;
+      if (this.square.isFlagged) {
+        // flagged -> questioned
+        this.square.isFlagged = false;
+        this.square.isQuestioned = true;
+      } else if (this.square.isQuestioned) {
+        // questioned -> unmarked
+        this.square.isFlagged = false;
+        this.square.isQuestioned = false;
+      } else {
+        // unmarked -> flagged
+        this.square.isFlagged = true;
+        this.square.isQuestioned = false;
+      }
     }
     e.preventDefault();
   }
@@ -125,6 +149,10 @@ export default class Square extends Vue {
 
   public getIsFlagged(): boolean {
     return this.square.isFlagged;
+  }
+
+  public getIsQuestioned(): boolean {
+    return this.square.isQuestioned;
   }
 }
 </script>
@@ -152,14 +180,6 @@ export default class Square extends Vue {
   border: 2px solid #808080;
 }
 
-.square-showing {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.bomb-count-number,
 .square-icon {
   height: 50%;
   width: auto;
