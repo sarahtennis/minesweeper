@@ -3,14 +3,14 @@
     <form @submit="onSubmit">
       <input
         ref="rows"
-        :value="rows"
+        v-model="newRows"
         type="text"
-        @change="updateRows($event.target.value)"
+        @keydown="onKeyDown($event)"
       />
       <input
         ref="columns"
-        :value="columns"
-        @change="updateColumns($event.target.value)"
+        v-model="newColumns"
+        @keydown="onKeyDown($event)"
         type="text"
       />
       <button type="submit">Generate Board</button>
@@ -60,13 +60,31 @@ export default class Dimensions extends Vue {
   @Prop() public updateRows!: RowChangeFunc;
   @Prop() public updateColumns!: ColumnChangeFunc;
 
+  public newRows: string;
+  public newColumns: string;
+
   constructor() {
     super();
+    this.newRows = this.rows.toString();
+    this.newColumns = this.columns.toString();
   }
 
-  onSubmit(e: InputEvent): void {
+  onKeyDown(event: KeyboardEvent): void {
+    const newRegex = new RegExp("^[0-9]*$");
+    const value = event.key;
+    if (value !== "Backspace" && !value.match(newRegex)) {
+      event.preventDefault();
+    }
+  }
+
+  onSubmit(e: InputEvent) {
+    console.log(this.newRows, this.newColumns);
     e.preventDefault();
-    this.newDimensions();
+
+    this.$emit("updateDimensions", {
+      rows: Number(this.newRows),
+      columns: Number(this.newColumns),
+    });
   }
 }
 </script>

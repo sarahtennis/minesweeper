@@ -1,11 +1,9 @@
 <template>
   <div id="game">
     <Dimensions
-      :newDimensions="onNewDimensions"
-      :rows="dimensions.x"
-      :columns="dimensions.y"
-      :updateColumns="updateColumns"
-      :updateRows="updateRows"
+      :rows="dimensions.rows"
+      :columns="dimensions.rows"
+      @updateDimensions="onUpdateDimensions"
     />
     <Header @newBoard="onNewBoard" />
     <Board :board="board" />
@@ -57,18 +55,30 @@ export default class Game extends Vue {
   }
 
   public updateRows(value: string): void {
-    this.dimensions.rows = parseInt(value);
+    const newRows = parseInt(value);
+    console.log(value);
+    if (newRows > 50) {
+      this.dimensions.rows = 50;
+    } else if (newRows < 1) {
+      this.dimensions.rows = 1;
+    } else {
+      this.dimensions.rows = newRows;
+    }
   }
 
   public updateColumns(value: string): void {
     this.dimensions.columns = parseInt(value);
   }
 
-  public onNewDimensions(): void {
+  public onUpdateDimensions({ rows, columns }: Dimension): void {
+    this.dimensions.rows = rows;
+    this.dimensions.columns = columns;
+
     const newMaxBombs = this.dimensions.rows * this.dimensions.columns;
     if (this.bombCount > newMaxBombs) {
       this.bombCount = newMaxBombs;
     }
+
     this.onNewBoard();
   }
 
