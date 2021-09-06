@@ -78,9 +78,7 @@ export default class Dimensions extends Vue {
   }
 
   onSubmit(e: InputEvent) {
-    console.log(this.newRows, this.newColumns);
     e.preventDefault();
-
     this.$emit("updateDimensions", {
       rows: Number(this.newRows),
       columns: Number(this.newColumns),
