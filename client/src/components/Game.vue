@@ -19,16 +19,14 @@ import Dimensions from "./Dimensions.vue";
 import Header from "./Header.vue";
 import EventBus from "../event-bus";
 
-// X determines number of rows
-// Y determines number of columns
 interface Dimension {
-  x: number;
-  y: number;
+  rows: number;
+  columns: number;
 }
 
 interface Location {
-  x: number;
-  y: number;
+  row: number;
+  column: number;
 }
 
 @Component({
@@ -41,14 +39,14 @@ interface Location {
 export default class Game extends Vue {
   public board: SquareRow[];
   public dimensions: Dimension = {
-    x: 10,
-    y: 10,
+    rows: 10,
+    columns: 10,
   };
   public bombCount = 20;
 
   constructor() {
     super();
-    this.board = this.initBoard(this.dimensions.x, this.dimensions.y);
+    this.board = this.initBoard(this.dimensions.rows, this.dimensions.columns);
   }
 
   public mounted(): void {
@@ -59,15 +57,15 @@ export default class Game extends Vue {
   }
 
   public updateRows(value: string): void {
-    this.dimensions.x = parseInt(value);
+    this.dimensions.rows = parseInt(value);
   }
 
   public updateColumns(value: string): void {
-    this.dimensions.y = parseInt(value);
+    this.dimensions.columns = parseInt(value);
   }
 
   public onNewDimensions(): void {
-    const newMaxBombs = this.dimensions.x * this.dimensions.y;
+    const newMaxBombs = this.dimensions.rows * this.dimensions.columns;
     if (this.bombCount > newMaxBombs) {
       this.bombCount = newMaxBombs;
     }
@@ -75,13 +73,13 @@ export default class Game extends Vue {
   }
 
   private onSquareClicked(square: SquareData) {
-    const { x, y } = square;
+    const { row, column } = square;
     if (!square.isFlagged && !square.isShowing) {
-      this.board[x][y].isShowing = true;
+      this.board[row][column].isShowing = true;
       if (square.isBomb) {
         // TODO: loss logic/visuals
       } else if (square.bombsTouching === 0) {
-        this.clickNeighbors({ x, y });
+        this.clickNeighbors({ row, column });
       }
     }
   }
@@ -92,11 +90,11 @@ export default class Game extends Vue {
     isRightColumn: boolean
   ): void {
     if (!isLeftColumn) {
-      this.clickSquare(this.board[location.x + 1][location.y - 1]);
+      this.clickSquare(this.board[location.row + 1][location.column - 1]);
     }
-    this.clickSquare(this.board[location.x + 1][location.y]);
+    this.clickSquare(this.board[location.row + 1][location.column]);
     if (!isRightColumn) {
-      this.clickSquare(this.board[location.x + 1][location.y + 1]);
+      this.clickSquare(this.board[location.row + 1][location.column + 1]);
     }
   }
 
@@ -109,8 +107,8 @@ export default class Game extends Vue {
     isLeftColumn: boolean,
     isRightColumn: boolean
   ): void {
-    const left = this.board[location.x][location.y - 1];
-    const right = this.board[location.x][location.y + 1];
+    const left = this.board[location.row][location.column - 1];
+    const right = this.board[location.row][location.column + 1];
     if (!isLeftColumn) {
       this.clickSquare(left);
     }
@@ -125,20 +123,20 @@ export default class Game extends Vue {
     isRightColumn: boolean
   ): void {
     if (!isLeftColumn) {
-      this.clickSquare(this.board[location.x - 1][location.y - 1]);
+      this.clickSquare(this.board[location.row - 1][location.column - 1]);
     }
-    this.clickSquare(this.board[location.x - 1][location.y]);
+    this.clickSquare(this.board[location.row - 1][location.column]);
     if (!isRightColumn) {
-      this.clickSquare(this.board[location.x - 1][location.y + 1]);
+      this.clickSquare(this.board[location.row - 1][location.column + 1]);
     }
   }
 
   private clickNeighbors(location: Location) {
-    const { x, y } = location;
-    const isTopRow = x === 0;
-    const isBottomRow = this.board.length === x + 1;
-    const isLeftColumn = y === 0;
-    const isRightColumn = this.board[0].length === y + 1;
+    const { row, column } = location;
+    const isTopRow = row === 0;
+    const isBottomRow = this.board.length === row + 1;
+    const isLeftColumn = column === 0;
+    const isRightColumn = this.board[0].length === column + 1;
 
     if (!isTopRow) this.clickAbove(location, isLeftColumn, isRightColumn);
     this.clickSides(location, isLeftColumn, isRightColumn);
@@ -146,20 +144,18 @@ export default class Game extends Vue {
   }
 
   public onNewBoard(): void {
-    this.board = this.initBoard(this.dimensions.x, this.dimensions.y);
+    this.board = this.initBoard(this.dimensions.rows, this.dimensions.columns);
     this.generateBoard();
   }
 
-  private initBoard(x: number, y: number): SquareRow[] {
+  private initBoard(rows: number, columns: number): SquareRow[] {
     let outputArray = [];
-    const xIndex = x;
-    const yIndex = y;
-    for (let y = 0; y < yIndex; y++) {
+    for (let r = 0; r < rows; r++) {
       const addArray = [];
-      for (let x = 0; x < xIndex; x++) {
+      for (let c = 0; c < columns; c++) {
         const squareData = {
-          x: y,
-          y: x,
+          row: r,
+          column: c,
           isBomb: false,
           bombsTouching: 0,
           isShowing: false,
@@ -178,14 +174,14 @@ export default class Game extends Vue {
     const bombLocations = [];
 
     while (bombsPlaced < bombCount) {
-      const xIndex = this.getRandomInt(this.dimensions.x);
-      const yIndex = this.getRandomInt(this.dimensions.y);
+      const row = this.getRandomInt(this.dimensions.rows);
+      const column = this.getRandomInt(this.dimensions.rows);
 
-      const square = this.board[yIndex][xIndex];
+      const square = this.board[row][column];
       if (!square.isBomb) {
         square.isBomb = true;
         bombsPlaced++;
-        bombLocations.push({ x: yIndex, y: xIndex });
+        bombLocations.push({ row, column });
       }
     }
 
@@ -199,11 +195,11 @@ export default class Game extends Vue {
 
   private incrementAroundBombs(bombLocations: Location[]): void {
     bombLocations.forEach((location: Location) => {
-      const { x, y } = location;
-      const isTopRow = x === 0;
-      const isBottomRow = this.board.length === x + 1;
-      const isLeftColumn = y === 0;
-      const isRightColumn = this.board[0].length === y + 1;
+      const { row, column } = location;
+      const isTopRow = row === 0;
+      const isBottomRow = this.board.length === row + 1;
+      const isLeftColumn = column === 0;
+      const isRightColumn = this.board[0].length === column + 1;
 
       if (!isTopRow) this.incrementAbove(location, isLeftColumn, isRightColumn);
       this.incrementSides(location, isLeftColumn, isRightColumn);
@@ -218,11 +214,11 @@ export default class Game extends Vue {
     isRightColumn: boolean
   ): void {
     if (!isLeftColumn) {
-      this.board[location.x + 1][location.y - 1].bombsTouching += 1;
+      this.board[location.row + 1][location.column - 1].bombsTouching += 1;
     }
-    this.board[location.x + 1][location.y].bombsTouching += 1;
+    this.board[location.row + 1][location.column].bombsTouching += 1;
     if (!isRightColumn) {
-      this.board[location.x + 1][location.y + 1].bombsTouching += 1;
+      this.board[location.row + 1][location.column + 1].bombsTouching += 1;
     }
   }
 
@@ -232,10 +228,10 @@ export default class Game extends Vue {
     isRightColumn: boolean
   ): void {
     if (!isLeftColumn) {
-      this.board[location.x][location.y - 1].bombsTouching += 1;
+      this.board[location.row][location.column - 1].bombsTouching += 1;
     }
     if (!isRightColumn) {
-      this.board[location.x][location.y + 1].bombsTouching += 1;
+      this.board[location.row][location.column + 1].bombsTouching += 1;
     }
   }
 
@@ -245,11 +241,11 @@ export default class Game extends Vue {
     isRightColumn: boolean
   ): void {
     if (!isLeftColumn) {
-      this.board[location.x - 1][location.y - 1].bombsTouching += 1;
+      this.board[location.row - 1][location.column - 1].bombsTouching += 1;
     }
-    this.board[location.x - 1][location.y].bombsTouching += 1;
+    this.board[location.row - 1][location.column].bombsTouching += 1;
     if (!isRightColumn) {
-      this.board[location.x - 1][location.y + 1].bombsTouching += 1;
+      this.board[location.row - 1][location.column + 1].bombsTouching += 1;
     }
   }
 

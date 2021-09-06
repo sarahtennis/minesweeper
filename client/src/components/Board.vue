@@ -19,8 +19,8 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import Row from "./Row.vue";
 
 export interface SquareData {
-  x: number;
-  y: number;
+  row: number;
+  column: number;
   isBomb: boolean;
   bombsTouching: number;
   isShowing: boolean;
