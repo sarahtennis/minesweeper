@@ -1,5 +1,12 @@
 <template>
   <div id="game">
+    <Dimensions
+      :newDimensions="onNewDimensions"
+      :rows="dimensions.x"
+      :columns="dimensions.y"
+      :updateColumns="updateColumns"
+      :updateRows="updateRows"
+    />
     <Header @newBoard="onNewBoard" />
     <Board :board="board" />
   </div>
@@ -8,6 +15,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import Board, { SquareRow, SquareData } from "./Board.vue";
+import Dimensions from "./Dimensions.vue";
 import Header from "./Header.vue";
 import EventBus from "../event-bus";
 
@@ -25,6 +33,7 @@ interface Location {
 
 @Component({
   components: {
+    Dimensions,
     Header,
     Board,
   },
@@ -47,6 +56,22 @@ export default class Game extends Vue {
     EventBus.$on("squareClicked", (square: SquareData) => {
       this.onSquareClicked(square);
     });
+  }
+
+  public updateRows(value: string): void {
+    this.dimensions.x = parseInt(value);
+  }
+
+  public updateColumns(value: string): void {
+    this.dimensions.y = parseInt(value);
+  }
+
+  public onNewDimensions(): void {
+    const newMaxBombs = this.dimensions.x * this.dimensions.y;
+    if (this.bombCount > newMaxBombs) {
+      this.bombCount = newMaxBombs;
+    }
+    this.onNewBoard();
   }
 
   private onSquareClicked(square: SquareData) {
@@ -156,11 +181,11 @@ export default class Game extends Vue {
       const xIndex = this.getRandomInt(this.dimensions.x);
       const yIndex = this.getRandomInt(this.dimensions.y);
 
-      const square = this.board[xIndex][yIndex];
+      const square = this.board[yIndex][xIndex];
       if (!square.isBomb) {
         square.isBomb = true;
         bombsPlaced++;
-        bombLocations.push({ x: xIndex, y: yIndex });
+        bombLocations.push({ x: yIndex, y: xIndex });
       }
     }
 
