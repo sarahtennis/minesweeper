@@ -1,7 +1,8 @@
 <template>
   <div
     id="board"
-    @mousedown="onMouseDown()"
+    @contextmenu="onContextMenu($event)"
+    @mousedown="onMouseDown($event)"
     @mouseup="onMouseUp()"
     @mouseleave="onMouseLeave()"
   >
@@ -45,7 +46,15 @@ export default class Board extends Vue {
     super();
   }
 
-  public onMouseDown(): void {
+  public onContextMenu(e: MouseEvent): void {
+    e.preventDefault();
+  }
+
+  public onMouseDown(e: MouseEvent): void {
+    if (e.button === 2) {
+      this.isMouseDown = false;
+      return;
+    }
     this.isMouseDown = true;
   }
 
