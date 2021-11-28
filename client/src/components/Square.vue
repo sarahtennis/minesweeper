@@ -2,11 +2,9 @@
   <div
     class="square"
     :class="{
-      hovered: getIsHovered(),
+      pressed: getIsPressed(),
       showing: getIsShowing(),
     }"
-    @contextmenu="onRightClick($event)"
-    @mousedown="onMouseDown($event)"
     @mouseup="onMouseUp($event)"
     @mouseleave="onMouseLeave($event)"
     @mouseenter="onMouseEnter($event)"
@@ -87,11 +85,19 @@ export default class Square extends Vue {
   }
 
   public onMouseUp(e: MouseEvent): void {
-    if (e.button === 2 || this.getIsFlagged() || this.getIsQuestioned()) {
-      e.preventDefault();
+    // Mouse up from external mouse down
+    if (this.getIsShowing()) {
       return;
     }
-    this.isHovered = false;
+    // Right click
+    if (e.button === 2) {
+      this.handleRightClick();
+      return;
+    }
+    // left click on flagged or questioned
+    if (!this.isMouseDown || this.getIsFlagged() || this.getIsQuestioned()) {
+      return;
+    }
     EventBus.$emit("squareClicked", this.square);
   }
 
@@ -100,43 +106,32 @@ export default class Square extends Vue {
   }
 
   public onMouseEnter(): void {
-    if (this.isMouseDown) {
-      this.isHovered = true;
-    } else {
-      this.isHovered = false;
-    }
-  }
-
-  public onMouseDown(e: MouseEvent): void {
-    if (e.button === 2 || this.getIsFlagged() || this.getIsQuestioned()) {
-      e.preventDefault();
-      return;
-    }
     this.isHovered = true;
   }
 
-  public onRightClick(e: MouseEvent): void {
-    // TODO: add ? icon functionality
-    if (!this.square.isShowing) {
-      if (this.square.isFlagged) {
-        // flagged -> questioned
+  private handleRightClick(): void {
+    if (!this.getIsShowing()) {
+      if (this.getIsFlagged()) {
         this.square.isFlagged = false;
         this.square.isQuestioned = true;
-      } else if (this.square.isQuestioned) {
-        // questioned -> unmarked
+      } else if (this.getIsQuestioned()) {
         this.square.isFlagged = false;
         this.square.isQuestioned = false;
       } else {
-        // unmarked -> flagged
         this.square.isFlagged = true;
         this.square.isQuestioned = false;
       }
     }
-    e.preventDefault();
   }
 
-  public getIsHovered(): boolean {
-    return this.isHovered;
+  public getIsPressed(): boolean {
+    return (
+      !this.getIsShowing() &&
+      this.isMouseDown &&
+      this.isHovered &&
+      !this.getIsFlagged() &&
+      !this.getIsQuestioned()
+    );
   }
 
   public getIsBomb(): boolean {
@@ -175,7 +170,7 @@ export default class Square extends Vue {
   user-select: none;
 }
 
-.square.hovered,
+.square.pressed,
 .square.showing {
   border: 2px solid #808080;
 }

@@ -8,7 +8,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import Game from "./components/Game.vue";
-import DigitalNumber, { Numbers } from "./assets/DigitalNumber.vue";
+import DigitalNumber, { Numbers } from "./components/DigitalNumber.vue";
 
 @Component({
   components: {
